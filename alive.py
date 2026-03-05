@@ -125,13 +125,14 @@ def load_config() -> dict:
         config.update(file_config)
         log.debug(f"Loaded config from {config_path}")
 
-    env_map = {
-        'ALIVE_GH_TOKEN': 'github_token',  # Used in GitHub Actions (avoids clash with built-in GITHUB_TOKEN)
-        'GITHUB_TOKEN': 'github_token',    # Fallback for local use
-        'GITHUB_USER': 'github_user',
-        'GITHUB_REPO': 'alive_repo',
-    }
-    for env_key, cfg_key in env_map.items():
+    # Token: prefer ALIVE_GH_TOKEN (used in GitHub Actions to avoid clashing with the
+    # built-in weak GITHUB_TOKEN that Actions injects automatically into every step).
+    # Falls back to GITHUB_TOKEN for local / legacy use.
+    token = os.environ.get('ALIVE_GH_TOKEN') or os.environ.get('GITHUB_TOKEN')
+    if token:
+        config['github_token'] = token
+
+    for env_key, cfg_key in [('GITHUB_USER', 'github_user'), ('GITHUB_REPO', 'alive_repo')]:
         if os.environ.get(env_key):
             config[cfg_key] = os.environ[env_key]
 
