@@ -32,3 +32,15 @@ jobs:
           GITHUB_USER: ${{ secrets.GH_USER }}
           GITHUB_REPO: alive
         run: python3 alive.py
+
+      - name: Keep this repo active
+        # GitHub disables scheduled workflows after 60 days of repo inactivity.
+        # alive.py commits to the 'alive' repo — not this one. So we write a
+        # tiny timestamp file here to keep github-alive alive.
+        run: |
+          git config user.name "github-alive"
+          git config user.email "github-alive@users.noreply.github.com"
+          echo "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > .last_run
+          git add .last_run
+          git diff --staged --quiet || git commit -m "ci: $(date -u +%Y-%m-%d)"
+          git push

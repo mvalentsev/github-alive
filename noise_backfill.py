@@ -63,11 +63,10 @@ def load_config() -> dict:
     if cfg_path.exists():
         with open(cfg_path) as f:
             config.update(json.load(f))
-    for env_key, cfg_key in [
-        ('GITHUB_TOKEN', 'github_token'),
-        ('GITHUB_USER', 'github_user'),
-        ('GITHUB_REPO', 'alive_repo'),
-    ]:
+    token = os.environ.get('ALIVE_GH_TOKEN') or os.environ.get('GITHUB_TOKEN')
+    if token:
+        config['github_token'] = token
+    for env_key, cfg_key in [('GITHUB_USER', 'github_user'), ('GITHUB_REPO', 'alive_repo')]:
         if os.environ.get(env_key):
             config[cfg_key] = os.environ[env_key]
     if not config['github_token']:

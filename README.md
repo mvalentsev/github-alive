@@ -171,7 +171,7 @@ and diagonal streaks emerge from the interference of the waves.
 | `alive.py` | Daily runner — computes target, counts real commits, fills gap |
 | `designer.py` | Terminal visualizer — preview the next 52 weeks |
 | `backfill.py` | One-time historical backfill for a date range |
-| `noise_backfill.py` | Adds sparse noise commits to "quiet" days (makes graph look more organic) |
+| `noise_backfill.py` | One-time tool: adds 1–3 sparse commits to days that were empty after the initial Mon/Wed/Fri-only backfill |
 | `config.example.json` | Config template (copy to `config.json`) |
 | `.github/workflows/alive.yml` | GitHub Actions schedule (3× daily) |
 
