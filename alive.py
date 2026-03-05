@@ -10,9 +10,11 @@ Usage:
     python alive.py
 
 Configuration (config.json or environment variables):
-    GITHUB_TOKEN  — personal access token with repo + user scope
-    GITHUB_USER   — your GitHub username
-    GITHUB_REPO   — repo to commit into (default: "alive")
+    ALIVE_GH_TOKEN — personal access token with repo + user scope
+                     (preferred; avoids clashing with GitHub Actions' built-in GITHUB_TOKEN)
+    GITHUB_TOKEN   — fallback for local use
+    GITHUB_USER    — your GitHub username
+    GITHUB_REPO    — repo to commit into (default: "alive")
 
 No pattern.json needed — the pattern is computed on the fly from a
 mathematical function anchored to 2012-09-09.

@@ -40,11 +40,11 @@ delta   = max(0, target - real) # only fill the gap
 
 ## Features
 
-- **Deterministic** — same date always produces the same pattern. No state, no config files.
+- **Deterministic** — same date always produces the same pattern. No state files, no database.
 - **Self-healing** — real commits count toward the target. Work more, fill less.
-- **No config** — just set two env vars (`GITHUB_TOKEN` + `GITHUB_USER`) and run.
+- **Minimal setup** — two secrets in GitHub Actions (`ALIVE_TOKEN` + `GH_USER`) and it runs forever.
 - **Organic** — overlapping sine waves at different frequencies create texture that looks hand-drawn.
-- **No backfill** — runs daily, shapes only the present moment.
+- **Flexible** — runs daily via GitHub Actions; includes backfill tools for historical gaps.
 
 ---
 
@@ -84,7 +84,8 @@ cp config.example.json config.json
 Alternatively, use environment variables:
 
 ```bash
-export GITHUB_TOKEN=ghp_...
+export ALIVE_GH_TOKEN=ghp_...   # preferred (avoids GitHub Actions built-in token clash)
+export GITHUB_TOKEN=ghp_...     # also works as fallback for local use
 export GITHUB_USER=your-username
 ```
 
@@ -119,7 +120,7 @@ python3 designer.py
 
 ```
   github-alive — pattern preview (next 52 weeks)
-  Anchor: 2012-09-09  |  Today: 2024-06-10
+  Anchor: 2012-09-09  |  Today: 2026-03-05
 
   Legend:  · 1–5   ░ 6–15   ▒ 16–25   ▓ 26–35   █ 36–40  commits
 
