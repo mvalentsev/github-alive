@@ -2,8 +2,8 @@ name: github-alive
 
 on:
   schedule:
-    # Runs at 08:00, 13:00, and 19:00 UTC every day
-    - cron: '0 8,13,19 * * *'
+    # Runs at 02:00, 10:00, and 18:00 UTC every day
+    - cron: '0 2,10,18 * * *'
   workflow_dispatch:  # Allow manual trigger from GitHub UI
 
 jobs:
@@ -29,6 +29,6 @@ jobs:
       - name: Run alive.py
         env:
           GITHUB_TOKEN: ${{ secrets.ALIVE_TOKEN }}
-          GITHUB_USER: mvalentsev
+          GITHUB_USER: ${{ secrets.GH_USER }}
           GITHUB_REPO: alive
-        run: python alive.py
+        run: python3 alive.py

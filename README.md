@@ -1,228 +1,179 @@
-# github-alive
+# github-alive — A living contribution graph
 
-[![Python](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://www.python.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-
-**Paints the word ALIVE in your GitHub contribution graph** — automatically topping up commits every day, taking your real activity into account.
+Your GitHub contribution graph becomes a self-evolving abstract pattern.
+Real commits blend seamlessly into the design — a sprint of 50 commits looks
+like a natural peak, not a disruption.
 
 ```
-  Sun  · · · · · · · · · · · · · · █ █ █ · · █ · · · · █ █ █ · █ · · · █ · █ █ █ █ · · · · · · · · ·
-  Mon  · · · · · · · · · · · · · █ · · · █ · █ · · · · · █ · · █ · · · █ · █ · · · · · · · · · · · ·
-  Tue  · · · · · · · · · · · · · █ · · · █ · █ · · · · · █ · · · █ · █ · · █ · · · · · · · · · · · ·
-  Wed  · · · · · · · · · · · · · █ █ █ █ █ · █ · · · · · █ · · · █ · █ · · █ █ █ █ · · · · · · · · ·
-  Thu  · · · · · · · · · · · · · █ · · · █ · █ · · · · · █ · · · · █ · · · █ · · · · · · · · · · · ·
-  Fri  · · · · · · · · · · · · · █ · · · █ · █ · · · · · █ · · · · █ · · · █ · · · · · · · · · · · ·
-  Sat  · · · · · · · · · · · · · █ · · · █ · █ █ █ █ · █ █ █ · · · █ · · · █ █ █ █ █ · · · · · · · ·
-```
+Jan ─────────────────────── Jun ──────────────────────── Dec
+Sun  ░ ░ ░ ░ ░ ░ ▒ ▒ ▒ ▓ ▓ ▓ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ░ ░ ░ ▒ ▒ ▒ ▓ ▓ ▓ ▓ ▓ ▓ ▒ ▒ ░ ░ ░ ░ ░ ░ ░ ░ ▒ ▒ ▒ ▒ ▒
+Mon  ░ ░ ░ ░ ▒ ▒ ▒ ▓ ▓ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ░ ░ ░ ▒ ▒ ▓ ▓ ▓ ▓ ▓ ▓ ▓ ▒ ▒ ▒ ░ ░ ░ ░ ░ ░ ▒ ▒ ▒ ▒ ▒ ▒ ▒
+Tue  ░ ░ ░ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ░ ░ ░ ▒ ▒ ▒ ▓ ▓ ▓ ▓ ▓ ▓ ▒ ▒ ▒ ▒ ░ ░ ░ ░ ░ ░ ▒ ▒ ▒ ▒ ▒ ▒ ▒
+Wed  ░ ░ ░ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ░ ░ ▒ ▒ ▒ ▓ ▓ ▓ ▓ ▓ ▓ ▓ ▒ ▒ ▒ ░ ░ ░ ░ ░ ░ ░ ▒ ▒ ▒ ▒ ▒ ▒ ▒
+Thu  ░ ░ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ░ ░ ░ ▒ ▒ ▓ ▓ ▓ ▓ ▓ ▓ ▓ ▒ ▒ ▒ ░ ░ ░ ░ ░ ░ ░ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒
+Fri  ░ ░ ░ ░ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ░ ░ ░ ░ ▒ ▒ ▒ ▓ ▓ ▓ ▓ ▓ ▒ ▒ ▒ ░ ░ ░ ░ ░ ░ ░ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒
+Sat  ░ ░ ░ ░ ▒ ▒ ▒ ▓ ▓ ▓ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ░ ░ ▒ ▒ ▒ ▓ ▓ ▓ ▓ ▓ ▒ ▒ ▒ ░ ░ ░ ░ ░ ░ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒ ▒
 
-> `█` = dark green squares on your contribution graph.  
-> Your graph wraps around every year — the pattern repeats automatically.
+Legend:  · 1–5   ░ 6–15   ▒ 16–25   ▓ 26–35   █ 36–40  commits/day
+```
 
 ---
 
 ## How it works
 
-GitHub renders a 52 × 7 contribution graph (52 weeks × 7 days).  
-`github-alive` maps the letters **A · L · I · V · E** onto that grid using a 7-row pixel font.
+github-alive runs daily (via GitHub Actions) and computes how many commits
+your contribution graph *should* show for today using a deterministic
+mathematical function. It then counts your real commits for today and fills
+the gap if needed.
 
-Each day, a small script checks:
-1. **What level** (0–4) the current cell requires.
-2. **How many commits** you've already made today (via GitHub API).
-3. **How many more** are needed to hit the target, and creates them.
+**Real activity blends in naturally.** If you push 30 commits during a sprint,
+that lands right in a peak zone of the pattern. It looks like the wave
+was always meant to be there — because mathematically, it was.
 
-| Level | Commits needed | Shade |
-|-------|---------------|-------|
-| 0     | 0             | none  |
-| 1     | 1             | light green |
-| 2     | 3             | medium green |
-| 3     | 6             | dark green |
-| 4     | 10            | darkest green |
+```
+target  = base_commits(today)   # from the wave function
+real    = count_real_commits()  # your actual GitHub activity (excl. alive repo)
+delta   = max(0, target - real) # only fill the gap
+```
 
-The project uses only a lightweight `alive.md` file inside a dedicated repo as the commit target — your actual code repos stay untouched.
+---
+
+## Features
+
+- **Deterministic** — same date always produces the same pattern. No state, no config files.
+- **Self-healing** — real commits count toward the target. Work more, fill less.
+- **No config** — just set two env vars (`GITHUB_TOKEN` + `GITHUB_USER`) and run.
+- **Organic** — overlapping sine waves at different frequencies create texture that looks hand-drawn.
+- **No backfill** — runs daily, shapes only the present moment.
 
 ---
 
 ## Installation
 
-### 1. Create the target repo
+### 1. Create the `alive` repo on GitHub
 
-Create a **public** repo called `alive` on GitHub (or any name you prefer — set it in config).  
-You can leave it completely empty; `alive.py` will create `alive.md` automatically.
+Create a public (or private) repository named `alive` in your GitHub account.
+It just needs to exist — github-alive will commit to it.
 
-### 2. Clone github-alive
+### 2. Clone this repo and install dependencies
 
 ```bash
-git clone https://github.com/your-username/github-alive.git
+git clone https://github.com/YOUR_USERNAME/github-alive
 cd github-alive
 pip install requests
 ```
 
-### 3. Configure
+### 3. Configure credentials
+
+Copy the example config and fill in your details:
 
 ```bash
 cp config.example.json config.json
 ```
 
-Edit `config.json`:
-
 ```json
 {
   "github_token": "ghp_...",
   "github_user": "your-username",
-  "alive_repo": "alive",
-  "pattern_file": "pattern.json"
+  "alive_repo": "alive"
 }
 ```
 
-**Token scopes needed:** `repo` (to create commits via the Contents API).
+> `config.json` is in `.gitignore` — it will never be committed.
 
-### 4. Generate the pattern
-
-```bash
-python designer.py           # generates pattern.json for "ALIVE"
-python designer.py "HELLO"   # or any custom word (A-Z supported)
-```
-
-The designer prints an ASCII preview and saves `pattern.json`.
-
-### 5. Run manually
+Alternatively, use environment variables:
 
 ```bash
-python alive.py
+export GITHUB_TOKEN=ghp_...
+export GITHUB_USER=your-username
 ```
 
-The script will log what it's doing:
-
-```
-2024-01-15 12:00:00  INFO      === github-alive starting ===
-2024-01-15 12:00:00  INFO      User: yourname  |  Repo: alive  |  Pattern: pattern.json
-2024-01-15 12:00:00  INFO      Today: 2024-01-15  |  Week: 2  |  Day: 1
-2024-01-15 12:00:00  INFO      Target commits for today (level 4): 10
-2024-01-15 12:00:01  INFO      Real commits today: 3
-2024-01-15 12:00:01  INFO      Commits needed: 7
-2024-01-15 12:00:01  INFO      Making 7 commit(s) to yourname/alive for 2024-01-15...
-2024-01-15 12:00:05  INFO      === Done! Made 7 commit(s). ===
-```
-
----
-
-## GitHub Actions setup
-
-To run automatically every day, push this repo to GitHub and configure Actions:
-
-### 1. Add repository secrets
-
-Go to your **github-alive** repo → Settings → Secrets and variables → Actions → New repository secret:
-
-| Secret name   | Value |
-|---------------|-------|
-| `ALIVE_TOKEN` | Your personal access token (with `repo` scope) |
-| `GITHUB_USER` | Your GitHub username |
-
-> Note: The built-in `GITHUB_TOKEN` in Actions cannot create commits that count in the contribution graph — you **must** use a personal access token stored as `ALIVE_TOKEN`.
-
-### 2. Push the workflow
-
-The workflow file is already at `.github/workflows/alive.yml`. Push it:
+### 4. Run manually
 
 ```bash
-git add .
-git commit -m "feat: initial github-alive setup"
-git push
+python3 alive.py
 ```
 
-The workflow runs at **08:00, 13:00, and 19:00 UTC** every day. You can also trigger it manually from the Actions tab.
+### 5. Set up GitHub Actions (automated daily run)
 
----
+The included workflow runs every day at 02:00 UTC.
 
-## Custom text
+Add these secrets to your repository (`Settings → Secrets → Actions`):
 
-```bash
-python designer.py "HELLO"
-python designer.py "CODE"
-python designer.py "OPEN"
-```
-
-Supported characters: A–Z and space. The text is automatically centered in the 52-week graph. If it's too long to fit, it's truncated.
-
-After generating a new `pattern.json`, commit and push it — the Actions workflow will pick it up on the next run.
-
----
-
-## File structure
-
-```
-github-alive/
-├── README.md               ← you are here
-├── config.example.json     ← copy to config.json and fill in your token
-├── config.json             ← (git-ignored) your real config
-├── pattern.json            ← 52×7 grid generated by designer.py
-├── designer.py             ← pixel-font renderer, generates pattern.json
-├── alive.py                ← daily runner: count commits, top up as needed
-└── .github/
-    └── workflows/
-        └── alive.yml       ← GitHub Actions cron job
-```
-
----
-
-## How the pattern tiles
-
-`github-alive` uses a **rolling / tiling** pattern rather than a fixed calendar-year layout.
-
-### Concept
-
-```
-|<-- 26 weeks (1 cycle) -->|<-- 26 weeks (1 cycle) -->|
-| A L I V E · · · · · · · | A L I V E · · · · · · · |
-```
-
-- The word **ALIVE** occupies **25 columns** of the pixel font.
-- Column 26 is a blank gap — creating visual separation between repetitions.
-- Total **cycle length = 26 weeks**.
-- In any **52-week window** (GitHub's full contribution graph), ALIVE appears **exactly twice**.
-
-### Why it's better than year-anchored patterns
-
-| Year-anchored | Rolling |
+| Secret | Value |
 |---|---|
-| Must backfill when you start mid-year | No backfill needed — tiling works from any date |
-| Pattern breaks at year boundaries | Seamless, infinite repetition |
-| Need to regenerate every year | Set it and forget it |
+| `GH_TOKEN` | Personal access token with `repo` + `user` scope |
+| `GH_USER` | Your GitHub username |
 
-### How position is calculated
+The workflow file is already at `.github/workflows/alive.yml`.
+
+---
+
+## Visualizing the pattern
+
+Preview the next 52 weeks in your terminal:
+
+```bash
+python3 designer.py
+```
+
+```
+  github-alive — pattern preview (next 52 weeks)
+  Anchor: 2012-09-09  |  Today: 2024-06-10
+
+  Legend:  · 1–5   ░ 6–15   ▒ 16–25   ▓ 26–35   █ 36–40  commits
+
+  ────────────────────────────────────────────────────────────────────
+  Sun  ░ ░ ▒ ▒ ▓ ▓ ▓ ▒ ▒ ░ ░ ░ ▒ ▒ ▓ ▓ █ ▓ ▓ ▒ ▒ ░ ░ ░ ▒ ▒ ▓ ...
+  Mon  ░ ▒ ▒ ▓ ▓ ▓ ▒ ▒ ░ ░ ░ ▒ ▒ ▓ ▓ █ █ ▓ ▒ ▒ ░ ░ ░ ▒ ▒ ▓ ▓ ...
+  Tue  ▒ ▒ ▓ ▓ ▓ ▒ ▒ ░ ░ ░ ▒ ▒ ▓ ▓ █ █ ▓ ▓ ▒ ▒ ░ ░ ░ ▒ ▒ ▓ ▓ ...
+  Wed  ▒ ▓ ▓ ▓ ▒ ▒ ░ ░ ░ ▒ ▒ ▓ ▓ █ █ █ ▓ ▒ ▒ ░ ░ ░ ░ ▒ ▒ ▓ ▓ ...
+  Thu  ▓ ▓ ▓ ▒ ▒ ░ ░ ░ ▒ ▒ ▓ ▓ █ █ █ ▓ ▒ ▒ ░ ░ ░ ░ ▒ ▒ ▓ ▓ ▓ ...
+  Fri  ▓ ▓ ▒ ▒ ░ ░ ░ ▒ ▒ ▓ ▓ █ █ █ ▓ ▒ ▒ ░ ░ ░ ░ ▒ ▒ ▓ ▓ ▓ ▒ ...
+  Sat  ░ ░ ░ ▒ ▒ ▓ ▓ ▓ ▒ ▒ ░ ░ ░ ▒ ▒ ▓ ▓ █ ▓ ▓ ▒ ▒ ░ ░ ░ ▒ ▒ ...
+  ────────────────────────────────────────────────────────────────────
+        ↑ today (Mon Jun 10)
+```
+
+---
+
+## How the pattern is generated
+
+The pattern is produced by five overlapping sine waves, each operating at a
+different timescale:
+
+| Wave | Period | Role |
+|---|---|---|
+| `w1` | 26 weeks | Primary rhythm — broad rise and fall |
+| `w2` | 13 weeks | Harmonic — mid-scale structure |
+| `w3` | 52 weeks | Yearly drift — slow background mood |
+| `w4` | 7 days + slow phase drift | Day-of-week texture |
+| `w5` | diagonal | Cross-grid ripple |
+
+They combine with weighted mixing:
 
 ```python
-anchor = datetime.date.fromisoformat(cfg["anchor_date"])  # 2012-09-09 (Sunday)
-days_since_anchor = (today - anchor).days
-week_since_anchor = days_since_anchor // 7
-pattern_week = week_since_anchor % cycle_weeks            # 0..25
-day_index    = today.isoweekday() % 7                     # Sun=0 .. Sat=6
+combined = w1*0.35 + w2*0.25 + w3*0.15 + w4*0.15 + w5*0.10
+commits  = round(3 + (combined + 1) * 18.5)   # maps [-1,1] → [3, 40]
 ```
 
-`anchor_date` is the Sunday closest to the GitHub account creation date (2012-09-08 → 2012-09-09). It can be any Sunday — it just determines where ALIVE "phases" in the graph.
+The result is a pattern where no two weeks are identical, yet the whole
+graph flows with visual coherence — peaks cluster, valleys breathe,
+and diagonal streaks emerge from the interference of the waves.
 
 ---
 
-## FAQ
+## Files
 
-**Will this overwrite my real commits?**  
-No. The script counts your real commits first and only adds what's missing to reach the target.
-
-**Does it mess with my existing repos?**  
-No. All synthetic commits go into the dedicated `alive` repo (or whatever you configure in `alive_repo`).
-
-**What if I have more commits than the target?**  
-Nothing happens — the script never removes commits.
-
-**Can I change the pattern mid-year?**  
-Yes. Run `designer.py` with new text, commit `pattern.json`, and the next run picks up the new pattern. Historical cells in the graph won't change, but future ones will.
-
-**The graph starts on a different week for me.**  
-GitHub's graph always shows the last 52 weeks starting from "today minus 52 weeks". The script uses ISO week numbers modulo 52, so it lines up correctly regardless of what day you start.
+| File | Purpose |
+|---|---|
+| `alive.py` | Daily runner — computes target, counts real commits, fills gap |
+| `designer.py` | Terminal visualizer — preview the next 52 weeks |
+| `config.example.json` | Config template (copy to `config.json`) |
+| `.github/workflows/alive.yml` | GitHub Actions daily schedule |
 
 ---
 
 ## License
 
-MIT © 2024 — free to use, fork, and share.
+MIT
