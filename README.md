@@ -96,13 +96,13 @@ python3 alive.py
 
 ### 5. Set up GitHub Actions (automated daily run)
 
-The included workflow runs every day at 02:00 UTC.
+The included workflow runs three times a day at **02:00, 10:00, and 18:00 UTC**.
 
 Add these secrets to your repository (`Settings → Secrets → Actions`):
 
 | Secret | Value |
 |---|---|
-| `GH_TOKEN` | Personal access token with `repo` + `user` scope |
+| `ALIVE_TOKEN` | Personal access token with `repo` + `user` scope |
 | `GH_USER` | Your GitHub username |
 
 The workflow file is already at `.github/workflows/alive.yml`.
@@ -169,8 +169,10 @@ and diagonal streaks emerge from the interference of the waves.
 |---|---|
 | `alive.py` | Daily runner — computes target, counts real commits, fills gap |
 | `designer.py` | Terminal visualizer — preview the next 52 weeks |
+| `backfill.py` | One-time historical backfill for a date range |
+| `noise_backfill.py` | Adds sparse noise commits to "quiet" days (makes graph look more organic) |
 | `config.example.json` | Config template (copy to `config.json`) |
-| `.github/workflows/alive.yml` | GitHub Actions daily schedule |
+| `.github/workflows/alive.yml` | GitHub Actions schedule (3× daily) |
 
 ---
 
