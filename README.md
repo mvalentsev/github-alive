@@ -26,9 +26,10 @@ your contribution graph *should* show for today using a deterministic
 mathematical function. It then counts your real commits for today and fills
 the gap if needed.
 
-**Real activity blends in naturally.** If you push 30 commits during a sprint,
-that lands right in a peak zone of the pattern. It looks like the wave
-was always meant to be there — because mathematically, it was.
+**Real activity blends in naturally** — most of the time. If a sprint lands on
+a peak zone, it reinforces the wave. If it lands on a valley, it creates a
+visible spike above the pattern. Either way, alive.py never adds synthetic
+commits on top of real ones — it only fills the gap up to the target.
 
 ```
 target  = base_commits(today)   # from the wave function
