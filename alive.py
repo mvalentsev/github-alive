@@ -126,7 +126,8 @@ def load_config() -> dict:
         log.debug(f"Loaded config from {config_path}")
 
     env_map = {
-        'GITHUB_TOKEN': 'github_token',
+        'ALIVE_GH_TOKEN': 'github_token',  # Used in GitHub Actions (avoids clash with built-in GITHUB_TOKEN)
+        'GITHUB_TOKEN': 'github_token',    # Fallback for local use
         'GITHUB_USER': 'github_user',
         'GITHUB_REPO': 'alive_repo',
     }

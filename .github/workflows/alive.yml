@@ -28,7 +28,7 @@ jobs:
 
       - name: Run alive.py
         env:
-          GITHUB_TOKEN: ${{ secrets.ALIVE_TOKEN }}
+          ALIVE_GH_TOKEN: ${{ secrets.ALIVE_TOKEN }}
           GITHUB_USER: ${{ secrets.GH_USER }}
           GITHUB_REPO: alive
         run: python3 alive.py
