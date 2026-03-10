@@ -33,9 +33,13 @@ commits on top of real ones — it only fills the gap up to the target.
 
 ```
 target  = base_commits(today)   # from the wave function
-real    = count_real_commits()  # your actual GitHub activity (excl. alive repo)
-delta   = max(0, target - real) # only fill the gap
+real    = count_real_commits()  # ALL your GitHub activity, including alive repo
+delta   = max(0, target - real) # only fill the gap; 0 if already at/above target
 ```
+
+> **Note:** `real` counts commits across *all* your repos, including `alive`.
+> This makes every run idempotent — if the first run already hit the target,
+> subsequent runs (10:00, 18:00 UTC) see delta=0 and do nothing.
 
 ---
 
@@ -172,7 +176,7 @@ and diagonal streaks emerge from the interference of the waves.
 | `alive.py` | Daily runner — computes target, counts real commits, fills gap |
 | `designer.py` | Terminal visualizer — preview the next 52 weeks |
 | `backfill.py` | One-time historical backfill for a date range |
-| `noise_backfill.py` | One-time tool: adds 1–3 sparse commits to days that were empty after the initial Mon/Wed/Fri-only backfill |
+| `noise_backfill.py` | **Deprecated** — was used when backfill.py only covered Mon/Wed/Fri; now a no-op (exits immediately if run) |
 | `config.example.json` | Config template (copy to `config.json`) |
 | `.github/workflows/alive.yml` | GitHub Actions schedule (3× daily) |
 

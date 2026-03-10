@@ -104,12 +104,26 @@ class GitHubAPI:
 
     def __init__(self, token: str, user: str):
         self.user = user
+        self._user_id: int | None = None
         self.session = requests.Session()
         self.session.headers.update({
             'Authorization': f'Bearer {token}',
             'Accept': 'application/vnd.github+json',
             'X-GitHub-Api-Version': '2022-11-28',
         })
+
+    def get_user_id(self) -> int:
+        """Fetch and cache the authenticated user's numeric ID."""
+        if self._user_id:
+            return self._user_id
+        resp = self.session.get(f'{self.BASE}/user', timeout=30)
+        resp.raise_for_status()
+        self._user_id = resp.json()['id']
+        return self._user_id
+
+    def get_noreply_email(self) -> str:
+        """Return the GitHub noreply email linked to this account."""
+        return f'{self.get_user_id()}+{self.user}@users.noreply.github.com'
 
     def get_file(self, repo: str, path: str) -> dict:
         resp = self.session.get(
@@ -150,6 +164,8 @@ def main():
 
     log.info(f"=== backfill starting ===")
     log.info(f"User: {user}  |  Repo: {repo}")
+    noreply = api.get_noreply_email()
+    log.info(f"Email: {noreply}")
     log.info(f"Range: {start_date} → {end_date}" + ("  [DRY RUN]" if args.dry_run else ""))
 
     if not args.dry_run:
@@ -192,13 +208,13 @@ def main():
                 'message': f'alive: {date_str} #{i + 1}',
                 'content': encoded,
                 'author': {
-                    'name': 'github-alive',
-                    'email': 'github-alive@users.noreply.github.com',
+                    'name': user,
+                    'email': noreply,
                     'date': ts,
                 },
                 'committer': {
-                    'name': 'github-alive',
-                    'email': 'github-alive@users.noreply.github.com',
+                    'name': user,
+                    'email': noreply,
                     'date': ts,
                 },
             }

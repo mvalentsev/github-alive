@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 """
-noise_backfill.py — Adds sparse "noise" commits to days left empty by the
-initial backfill (Tue/Thu/Sat/Sun rows that were outside the Mon/Wed/Fri pattern).
+noise_backfill.py — DEPRECATED. Do not use.
 
-Adds 1–3 light commits per empty day, deterministically seeded by date,
-so the result is reproducible and safe to re-run.
+This script was written when backfill.py only covered Mon/Wed/Fri. It added
+1–3 commits to the empty Tue/Thu/Sat/Sun days. backfill.py now covers all days
+of the week using the full mathematical pattern, so this script is no longer
+needed and would create duplicate commits if run against an up-to-date repo.
 
-Usage:
+Kept for historical reference only.
+
+Usage (historical):
     python3 noise_backfill.py
 
 Config: reads config.json (same format as alive.py).
@@ -87,12 +90,24 @@ class GitHubAPI:
 
     def __init__(self, token: str, user: str):
         self.user = user
+        self._user_id: int | None = None
         self.session = requests.Session()
         self.session.headers.update({
             'Authorization': f'Bearer {token}',
             'Accept': 'application/vnd.github+json',
             'X-GitHub-Api-Version': '2022-11-28',
         })
+
+    def get_user_id(self) -> int:
+        if self._user_id:
+            return self._user_id
+        resp = self.session.get(f'{self.BASE}/user', timeout=30)
+        resp.raise_for_status()
+        self._user_id = resp.json()['id']
+        return self._user_id
+
+    def get_noreply_email(self) -> str:
+        return f'{self.get_user_id()}+{self.user}@users.noreply.github.com'
 
     def get_file(self, repo: str, path: str) -> dict:
         resp = self.session.get(
@@ -120,9 +135,15 @@ def main():
     repo = config['alive_repo']
     user = config['github_user']
 
+    log.warning("noise_backfill is DEPRECATED — backfill.py now covers all days. Aborting.")
+    log.warning("Remove this guard and update START_DATE/END_DATE only if you know what you're doing.")
+    import sys; sys.exit(1)
+
     log.info(f"=== noise_backfill starting ===")
     log.info(f"User: {user}  |  Repo: {repo}")
     log.info(f"Range: {START_DATE} → {END_DATE}  |  Noise days: Tue/Thu/Sat/Sun")
+    noreply = api.get_noreply_email()
+    log.info(f"Email: {noreply}")
 
     # Get starting SHA
     file_info = api.get_file(repo, 'alive.md')
@@ -155,13 +176,13 @@ def main():
                     'content': encoded,
                     'sha': current_sha,
                     'author': {
-                        'name': 'github-alive',
-                        'email': 'github-alive@users.noreply.github.com',
+                        'name': user,
+                        'email': noreply,
                         'date': ts,
                     },
                     'committer': {
-                        'name': 'github-alive',
-                        'email': 'github-alive@users.noreply.github.com',
+                        'name': user,
+                        'email': noreply,
                         'date': ts,
                     },
                 }
