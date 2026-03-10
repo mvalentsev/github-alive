@@ -157,14 +157,28 @@ class GitHubAPI:
 
     BASE = 'https://api.github.com'
 
-    def __init__(self, token: str, user: str):
+    def __init__(self, token: str, user: str, user_id: int | None = None):
         self.user = user
+        self.user_id = user_id
         self.session = requests.Session()
         self.session.headers.update({
             'Authorization': f'Bearer {token}',
             'Accept': 'application/vnd.github+json',
             'X-GitHub-Api-Version': '2022-11-28',
         })
+
+    def get_user_id(self) -> int:
+        """Fetch and cache the authenticated user's numeric ID."""
+        if self.user_id:
+            return self.user_id
+        data = self._get('/user')
+        self.user_id = data['id']
+        return self.user_id
+
+    def get_noreply_email(self) -> str:
+        """Return the GitHub noreply email that is linked to this account."""
+        uid = self.get_user_id()
+        return f'{uid}+{self.user}@users.noreply.github.com'
 
     def _get(self, path: str, params: dict = None, extra_headers: dict = None) -> dict | list:
         url = f'{self.BASE}{path}'
@@ -185,19 +199,23 @@ class GitHubAPI:
 
     def count_real_commits(self, date_str: str, alive_repo: str) -> int:
         """
-        Count commits authored by self.user on date_str, excluding the alive repo itself.
+        Count ALL commits authored by self.user on date_str (including alive repo).
+
+        Including alive repo commits ensures that when alive.py runs multiple times
+        per day, subsequent runs see existing alive commits and produce delta=0
+        (idempotent behaviour). Without this, each run would add pattern_base commits
+        regardless of how many synthetic commits already exist.
 
         Uses GitHub Search API with committer-date filter. Returns 0 on error.
 
         Args:
             date_str: date in "YYYY-MM-DD" format
-            alive_repo: name of the alive repo to exclude from count
+            alive_repo: kept for API compatibility but no longer used for exclusion
 
         Returns:
             Number of commits found
         """
-        # Exclude the alive repo to avoid counting our own synthetic commits
-        query = f'author:{self.user} committer-date:{date_str} -repo:{self.user}/{alive_repo}'
+        query = f'author:{self.user} committer-date:{date_str}'
         params = {'q': query, 'per_page': 1}
         extra_headers = {'Accept': 'application/vnd.github.cloak-preview+json'}
         try:
@@ -235,17 +253,18 @@ class GitHubAPI:
             API response dict
         """
         encoded = base64.b64encode(content.encode()).decode()
+        noreply = self.get_noreply_email()
         data = {
             'message': message,
             'content': encoded,
             'committer': {
-                'name': 'github-alive',
-                'email': 'github-alive@users.noreply.github.com',
+                'name': self.user,
+                'email': noreply,
                 'date': author_date,
             },
             'author': {
-                'name': 'github-alive',
-                'email': 'github-alive@users.noreply.github.com',
+                'name': self.user,
+                'email': noreply,
                 'date': author_date,
             },
         }
@@ -262,8 +281,10 @@ def make_commits(api: GitHubAPI, repo: str, count: int, date_str: str) -> None:
     """
     Create `count` commits to alive.md in the target repo.
 
-    Commits are spread across the day (every ~30 minutes from noon) to look
-    natural in the contribution graph timeline.
+    Commits are spread evenly across the full UTC day (00:00–23:59) so that
+    even the maximum of 40 commits per day never spills into the next day.
+    This ensures each commit is attributed to the correct calendar date in
+    the GitHub contribution graph.
 
     Args:
         api: GitHubAPI instance
@@ -274,14 +295,16 @@ def make_commits(api: GitHubAPI, repo: str, count: int, date_str: str) -> None:
     log.info(f"Making {count} commit(s) to {api.user}/{repo} for {date_str}...")
 
     base_dt = datetime.datetime.strptime(date_str, '%Y-%m-%d').replace(
-        hour=12, minute=0, second=0
+        hour=0, minute=0, second=0
     )
 
     existing = api.get_file(repo, 'alive.md')
     current_sha = existing.get('sha')
 
     for i in range(count):
-        commit_dt = base_dt + datetime.timedelta(minutes=30 * i)
+        # Distribute evenly across 24 h; step = 1440 / count minutes.
+        minutes = int(i * 1440 / count)
+        commit_dt = base_dt + datetime.timedelta(minutes=minutes)
         ts = commit_dt.strftime('%Y-%m-%dT%H:%M:%SZ')
 
         content = (
@@ -333,9 +356,9 @@ def main():
 
     api = GitHubAPI(token=token, user=user)
 
-    # Count real commits (excluding alive repo)
+    # Count all commits today (including alive repo) to ensure idempotent runs
     real = api.count_real_commits(date_str, repo)
-    log.info(f"Real commits today (excl. {repo}): {real}")
+    log.info(f"Commits today (all repos, incl. {repo}): {real}")
 
     # Only fill the gap; real activity never breaks the pattern
     delta = max(0, base - real)

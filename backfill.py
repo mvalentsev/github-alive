@@ -177,11 +177,13 @@ def main():
         log.info(f"  {date_str} ({d.strftime('%a')}) → {count} commit(s)")
 
         base_dt = datetime.datetime.strptime(date_str, '%Y-%m-%d').replace(
-            hour=12, minute=0, second=0
+            hour=0, minute=0, second=0
         )
 
         for i in range(count):
-            commit_dt = base_dt + datetime.timedelta(minutes=30 * i)
+            # Distribute evenly across 24 h so commits never spill into the next day.
+            minutes = int(i * 1440 / count)
+            commit_dt = base_dt + datetime.timedelta(minutes=minutes)
             ts = commit_dt.strftime('%Y-%m-%dT%H:%M:%SZ')
             content = f"alive: {date_str} #{i + 1}\n"
             encoded = base64.b64encode(content.encode()).decode()
