@@ -135,8 +135,8 @@ class GitHubAPI:
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--start', default='2025-03-06', help='Start date YYYY-MM-DD')
-    parser.add_argument('--end', default='2026-03-04', help='End date YYYY-MM-DD')
+    parser.add_argument('--start', default='2012-09-09', help='Start date YYYY-MM-DD')
+    parser.add_argument('--end', default='2026-03-10', help='End date YYYY-MM-DD')
     parser.add_argument('--dry-run', action='store_true', help='Print plan without committing')
     args = parser.parse_args()
 
